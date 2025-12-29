@@ -1,0 +1,98 @@
+<div class="admin-wrapper">
+  <app-back-button></app-back-button>
+  <section class="admin-section admin-hero">
+    <div class="hero-copy">
+      <span class="hero-chip">Panel de control</span>
+
+      <h1>Impulsa tu tienda con decisiones inteligentes</h1>
+      <p>
+        Supervisa las metricas clave, coordina a tu equipo y mantene tu inventario siempre listo.
+        Todo lo que necesitas para administrar Shoppify con confianza esta aqui.
+      </p>
+
+      <div class="hero-actions">
+
+        <a class="btn btn-primary" routerLink="/products">
+          <span class="btn-icon" aria-hidden="true">🛒</span>
+          <span class="btn-content">
+            <span class="btn-label">Gestionar productos</span>
+            <small>Edita precios, stock y visibilidad</small>
+          </span>
+        </a>
+        <a class="btn btn-primary" routerLink="/categories">
+          <span class="btn-icon" aria-hidden="true">🔠</span>
+          <span class="btn-content">
+            <span class="btn-label">Gestionar Categorias</span>
+            <small>Edita y crea nuevas categorias</small>
+          </span>
+        </a>
+
+
+        <a class="btn btn-primary" routerLink="edit/store">
+          <span class="btn-icon" aria-hidden="true">🏪</span>
+          <span class="btn-content">
+            <span class="btn-label">Gestionar tienda</span>
+            <small>Edita nombre, direccion y detalles</small>
+          </span>
+        </a>
+
+        <a class="btn btn-primary" routerLink="edit/notification">
+          <span class="btn-icon" aria-hidden="true">🔔</span>
+          <span class="btn-content">
+            <span class="btn-label">Gestionar notificaciones</span>
+            <small>Edita y crea alertas personalizadas</small>
+          </span>
+        </a>
+      </div>
+    </div>
+    <div class="hero-chart">
+      <div class="chart-card">
+        <header class="chart-card__header">
+
+          <div class="chart-meta">
+            <h3>Productos más vendidos</h3>
+          </div>
+        </header>
+        <c-chart [data]="data" type="bar" />
+      </div>
+    </div>
+
+
+  </section>
+
+
+  <section class="admin-section admin-actions">
+    <div class="section-header">
+      <h2>Acciones rapidas</h2>
+      <span class="section-helper">Optimiza tus procesos en segundos</span>
+    </div>
+    <div class="action-grid">
+      <div (click)="createProduct()" class="action-card" data-accent="violet">
+        <div class="action-copy">
+          <h3>Nuevo producto</h3>
+          <p>Publica un nuevo producto .</p>
+        </div>
+        <span class="action-hint">5 min</span>
+      </div>
+
+      <div (click)="bulkProducts()" class="action-card" data-accent="violet">
+        <div class="action-copy">
+          <h3>Importar Productos</h3>
+          <p>Importa varios productos desde un archivo csv</p>
+        </div>
+      </div>
+
+      <div routerLink="/auth/admin/edit/carousel" class="action-card" data-accent="sky">
+        <div class="action-copy">
+          <h3>Campaña flash</h3>
+          <p>Crea un banner destacado para impulsar ventas express.</p>
+        </div>
+        <span class="action-hint">Promueve ahora</span>
+      </div>
+
+
+
+    </div>
+  </section>
+
+</div>

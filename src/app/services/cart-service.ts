@@ -1,136 +1,152 @@
-import { Injectable, signal, computed } from '@angular/core';
-import { Product } from '../models/product';
-import { ProductService } from './product-service';
-import Swal from 'sweetalert2';
+import { inject, Injectable, signal, computed } from '@angular/core';
+import { environment } from '../../environments/environment';
+import { HttpClient } from '@angular/common/http';
+import { Cart, DetailCart } from '../models/cart/cartResponse';
 import { SaleRequest } from '../models/sale';
+import { tap } from 'rxjs/operators';
+import { forkJoin } from 'rxjs';
+import { TransactionService } from './transaction-service';
+import { ShipmentRequest } from '../models/shipment';
 
 @Injectable({
   providedIn: 'root'
 })
 export class CartService {
 
-  cartItems = signal<Product[]>([])
-  itemsInCart = computed(() => this.cartItems().length)
+  private http = inject(HttpClient);
+  private tService = inject(TransactionService);
+  readonly API_URL = `${environment.apiUrl}/user`;
 
-  total = computed(() =>
-    this.cartItems().reduce((sum, item) => sum + item.price * item.stock, 0)
-  )
+  private _cartState = signal<Cart | null>(null);
+  public selected = signal<Set<number>>(new Set());
 
-  constructor(private productService: ProductService) { }
+  // Stores the active MP preference and associated Transaction ID
+  public activeTransaction = signal<{ preferenceId: string, transactionId: number } | null>(null);
 
-
-  addToCart(product: Product) {
-    this.productService.get(product.id).subscribe({
-      next: updatedProduct => {
-        if (updatedProduct.stock > 0) {
-          const items = [...this.cartItems()];
-          const existing = items.find(i => i.id === product.id)
-
-          if (existing) {
-            if (updatedProduct.stock > existing.stock) {
-              existing.stock++
-            } else {
-              Swal.fire({
-                icon: "error",
-                title: "Oops...",
-                text: "El producto no tiene stock disponible"
-              });
-            }
-          } else {
-            items.push({ ...product, stock: 1 })
-          }
-
-          this.cartItems.set(items)
-        } else {
-          Swal.fire({
-            icon: "error",
-            title: "Oops...",
-            text: "El producto no tiene stock disponible"
-          });
-        }
-      },
-      error: err => console.error('Error verificando stock:', err)
-    })
+  public setActiveTransaction(data: { preferenceId: string, transactionId: number } | null) {
+    this.activeTransaction.set(data);
   }
 
-  updateQuantity(item: Product, newQty: number): Promise<Product[]> {
-    return new Promise((resolve, reject) => {
-      const quantity = Number(newQty) //esto pasa el imput que viene como string a numero
+  public cart = this._cartState.asReadonly();
 
-      if (quantity < 1) {
-        reject(new Error("La cantidad mínima es 1"))
-        return
-      }
-
-      this.productService.get(item.id).subscribe({
-        next: (updatedProduct) => {
-          if (quantity > updatedProduct.stock) {
-            reject(new Error("Solo hay " + updatedProduct.stock + " unidades disponibles"))
-          } else {
-            const updatedCart = this.cartItems().map((i) =>
-              i.id === item.id ? { ...i, stock: quantity } : i
-            )
-            this.cartItems.set(updatedCart)
-            resolve(updatedCart)
-          }
-        },
-        error: (err) => {
-          console.error("Error verificando stock:", err)
-          reject(new Error("No se pudo verificar el stock del producto"))
-        },
-      })
-    })
-  }
+  public totalItems = computed(() => {
+    const currentCart = this._cartState();
+    if (!currentCart || !currentCart.items) return 0;
+    return currentCart.items.reduce((acc, item) => acc + item.quantity!, 0);
+  });
 
 
-  removeFromCart(productId: number) {
-    const product = this.cartItems().find(p => p.id === productId)
-    if (product) {
-      this.productService.get(productId).subscribe(p => {
-        p.stock = p.stock + product.stock
-        this.productService.put(p).subscribe()
-      }
-      )
+  public totalPrice = computed(() => {
+    const currentCart = this._cartState();
+    return currentCart?.total || 0;
+  });
+
+  private checkAndCancelTransaction() {
+    if (this.activeTransaction()) {
+      this.cancelActiveTransaction();
     }
-    this.cartItems.set(this.cartItems().filter(i => i.id !== productId))
   }
 
-  clearCart() {
-    this.cartItems().forEach(product =>
-      this.productService.get(product.id).subscribe(p => {
-        p.stock = p.stock + product.stock
-        this.productService.put(p).subscribe()
-      }
-      )
+  public cancelActiveTransaction() {
+    const active = this.activeTransaction();
+    if (active) {
+      console.log('Cancelling active transaction:', active.transactionId);
+      this.tService.cancelTransaction(active.transactionId).subscribe({
+        next: () => console.log('Transaction cancelled successfully'),
+        error: (err) => console.error('Error cancelling transaction', err)
+      });
+      this.activeTransaction.set(null);
+    }
+  }
+
+  getCart(userId: number) {
+    return this.http.get<Cart>(`${this.API_URL}/${userId}/cart`).pipe(
+      tap(cartData => this._cartState.set(cartData))
     );
-    this.cartItems.set([])
   }
 
-  prepareSaleRequest(formValue: any, userId?: number | null, selectedProducts?: Product[]): SaleRequest | null {
-    if (!userId) {
-      console.error('❌ No hay usuario logueado. No se puede preparar la venta.');
-      return null;
-    }
-    const products = selectedProducts ?? this.cartItems()
+  clearCart(userId: number) {
+    this.checkAndCancelTransaction();
+    return this.http.delete<Cart>(`${this.API_URL}/${userId}/cart/items`).pipe(
+      tap(emptyCart => this._cartState.set(emptyCart))
+    );
+  }
 
-    if (!products.length) {
-      console.warn('⚠️ No hay productos en el carrito.');
-      return null;
-    }
+  addItem(userId: number, productId: number, quantity: number) {
+    this.checkAndCancelTransaction();
+    const cartRequest = { productId, quantity };
+    return this.http.post<Cart>(`${this.API_URL}/${userId}/cart/items`, cartRequest).pipe(
+      tap(updatedCart => this._cartState.set(updatedCart))
+    );
+  }
 
-    const detailTransactions = products.map(item => ({
-      productID: item.id,
-      quantity: item.stock,
-      subtotal: item.price * item.stock
-    }))
+  removeItem(userId: number, itemId: number) {
+    this.checkAndCancelTransaction();
+    return this.http.delete<Cart>(`${this.API_URL}/${userId}/cart/items/${itemId}`).pipe(
+      tap(updatedCart => this._cartState.set(updatedCart))
+    );
+  }
+
+  updateItemQuantity(userId: number, itemId: number, quantity: number) {
+    this.checkAndCancelTransaction();
+    return this.http.patch<Cart>(`${this.API_URL}/${userId}/cart/items/${itemId}`, { quantity }).pipe(
+      tap(updatedCart => this._cartState.set(updatedCart))
+    );
+  }
+
+  removeSelected(userId: number) {
+    this.checkAndCancelTransaction();
+    const selectedIds = this.selected();
+    const deleteRequests = Array.from(selectedIds).map(id => this.removeItem(userId, id));
+    return forkJoin(deleteRequests).pipe(
+      tap(() => this.selected.set(new Set()))
+    );
+  }
+
+  prepareSaleRequest(userId: number, items: DetailCart[], shipment: ShipmentRequest): SaleRequest | null {
+    if (!items || items.length === 0) return null;
+
+    const detailTransactions = items
+      .filter(i => i.product?.id !== undefined)
+      .map(i => ({
+        productID: i.product!.id!,
+        quantity: i.quantity || 1
+      }));
+
+    if (detailTransactions.length === 0) return null;
+
+    const shippingDataJson = localStorage.getItem('shipping_data');
+    let shipmentRequest;
+
+    if (shippingDataJson) {
+      const shippingData = JSON.parse(shippingDataJson);
+      const isPickup = shippingData.type === 'pickup';
+      let address = 'Retiro en sucursal';
+      let postalCode = '';
+
+      if (!isPickup && shippingData.form) {
+        const f = shippingData.form;
+        address = `${f.street} ${f.number}, ${f.city}`;
+        if (f.notes) {
+          address += ` (${f.notes})`;
+        }
+        postalCode = f.zip;
+      }
+
+      shipmentRequest = {
+        pickup: isPickup,
+        adress: address,
+        postalCode: postalCode
+      };
+    }
 
     return {
-      clientId: userId,
+      userId,
       transaction: {
-        paymentMethod: formValue.paymentMethod || "CASH",
-        description: formValue.description || "Sin descripción",
-        detailTransactions
-      }
-    }
+        detailTransactions,
+        description: 'Mercado Pago checkout'
+      },
+      shipment: shipment
+    };
   }
 }

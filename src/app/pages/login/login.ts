@@ -23,8 +23,8 @@ export class Login implements OnInit {
 
   ngOnInit(): void {
     this.fg = this.fb.group({
-      email: ['', [Validators.required]],
-      password: ['', [Validators.required]],
+      email: ['', [Validators.required, Validators.email]],
+      password: ['', [Validators.required, Validators.minLength(8), Validators.maxLength(100)]],
     });
   }
 
@@ -35,14 +35,16 @@ export class Login implements OnInit {
 
   login() {
     this.authService.login(this.fg.value).subscribe({
-      next: () => {
+      next: (res) => {
+        this.authService.setSession(res.token, Array.from(res.permits), Array.from(res.roles), res.user)
         Swal.fire({
           title: "Bienvenido, " + this.authService.user()?.firstName,
           text: "Has iniciado sesión correctamente.",
           icon: "success",
           background: "#f7f7f8",
           color: "black"
-        });
+        })
+        this.router.navigate(["/"])
       },
       error(err) {
         Swal.fire({

@@ -1,22 +1,22 @@
-import { Component } from '@angular/core';
+import { Component, input } from '@angular/core';
 import { Router, RouterLink } from '@angular/router';
 import { AuthService } from '../../services/auth-service';
 import Swal from 'sweetalert2';
-import { DropdownComponent, DropdownMenuDirective, DropdownToggleDirective, DropdownItemDirective, ImgDirective} from '@coreui/angular';
-import { ButtonDirective } from '@coreui/angular';
+import { DropdownComponent, DropdownMenuDirective, DropdownToggleDirective, DropdownItemDirective } from '@coreui/angular';
 import { CommonModule } from '@angular/common';
-import { ImageFallbackDirective } from '../../directives/image-fallback';
+import { ImageFallbackDirective } from '../../core/directives/image-fallback';
 
 @Component({
   selector: 'app-user-avatar',
   standalone: true,
-  imports: [RouterLink, DropdownComponent, DropdownMenuDirective, DropdownToggleDirective, DropdownItemDirective, ButtonDirective, CommonModule, ImageFallbackDirective],
+  imports: [RouterLink, DropdownComponent, DropdownMenuDirective, DropdownToggleDirective, DropdownItemDirective, CommonModule, ImageFallbackDirective],
   
   templateUrl: './user-avatar.html',
   styleUrl: './user-avatar.css'
 })
 export class UserAvatar {
   showMenu = false;
+
 
   constructor(private router: Router , public auth:AuthService) {}
 
@@ -38,36 +38,34 @@ export class UserAvatar {
     this.showMenu = false;
   }
 
-  logout(){
-
-Swal.fire({
-  title: '¿Cerrar sesión?',
-  text: 'Tu sesión actual se cerrará',
-  icon: 'warning',
-  iconColor: '#6141e8',
-  showCancelButton: true,
-  background:"#f7f7f8",
-  color:"black",
-
-  confirmButtonText: 'Sí, cerrar sesión',
-  cancelButtonText: 'Cancelar'
-}).then((result) => {
-  if (result.isConfirmed) {
+  logout() {
     Swal.fire({
-      title: 'Sesión cerrada',
-      text: 'Has salido correctamente de tu cuenta.',
-      icon: 'success',
-      background:"#f7f7f8",
-  color:"black",
-      confirmButtonText: 'Aceptar'
-    }).then(() => {
-      this.auth.logout();
+      title: '¿Cerrar sesión?',
+      text: 'Tu sesión actual se cerrará',
+      icon: 'warning',
+      iconColor: '#6141e8',
+      showCancelButton: true,
+      background: "#f7f7f8",
+      color: "black",
+      confirmButtonText: 'Sí, cerrar sesión',
+      cancelButtonText: 'Cancelar'
+    }).then((result) => {
+      if (result.isConfirmed) {
+        this.auth.logout();
+        localStorage.clear();
+        sessionStorage.clear();
+        Swal.fire({
+          title: 'Sesión cerrada',
+          text: 'Has salido correctamente de tu cuenta.',
+          icon: 'success',
+          background: "#f7f7f8",
+          color: "black",
+          confirmButtonText: 'Aceptar'
+        }).then(() => {
+          window.location.href = '/auth/login';
+        });
+      }
     });
-  }
-});
-
-    
-
   }
 }
 

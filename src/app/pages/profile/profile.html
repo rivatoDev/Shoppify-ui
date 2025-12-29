@@ -1,17 +1,15 @@
 <div class="profile-page">
   <section class="profile-hero">
+    <app-back-button></app-back-button>
     <h1>Tu perfil</h1>
     <p class="profile-subtitle">Gestiona tus datos personales y accesos desde un solo lugar.</p>
   </section>
 
+  @if(user) {
   <section class="profile-main">
     <article class="profile-card" aria-label="Resumen del usuario">
       <div class="profile-avatar">
-        <img
-          class="profile-pic"
-          [src]="user.img"
-          [alt]="(user.firstName || 'Usuario')"
-        />
+        <img class="profile-pic" [src]="user.img" [alt]="(user.firstName || 'Usuario')" />
       </div>
 
       <div class="profile-info">
@@ -39,11 +37,15 @@
       <div class="setting-grid">
         <button class="setting-card" type="button" (click)="editarConfiguracion()">
           <span class="setting-title">Editar configuracion</span>
-          <span class="setting-desc">Gestiona correo, contrasena y preferencias.</span>
+          <span class="setting-desc">Gestiona correo, contraseña y preferencias.</span>
         </button>
         <button class="setting-card" type="button" (click)="verCompras()">
           <span class="setting-title">Ver mis compras</span>
           <span class="setting-desc">Consulta tu historial de pedidos.</span>
+        </button>
+        <button class="setting-card" type="button" (click)="verFavoritos()">
+          <span class="setting-title">Mis favoritos</span>
+          <span class="setting-desc">Mira los productos que te gustaron.</span>
         </button>
         <button class="setting-card" type="button" (click)="ayuda()">
           <span class="setting-title">Centro de ayuda</span>
@@ -52,6 +54,7 @@
       </div>
     </nav>
   </section>
+  }
 
   <!--
   <section class="wish-list">
@@ -75,5 +78,5 @@
     }
   </section>
   -->
-  
+
 </div>

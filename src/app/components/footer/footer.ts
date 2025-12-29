@@ -1,6 +1,6 @@
-import { Component, inject, OnInit } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { StoreService } from '../../services/store-service';
-import { ImageFallbackDirective } from '../../directives/image-fallback';
+import { ImageFallbackDirective } from '../../core/directives/image-fallback';
 import { Store } from '../../models/store';
 import { RouterLink } from '@angular/router';
 
@@ -12,7 +12,7 @@ import { RouterLink } from '@angular/router';
 })
 export class Footer implements OnInit {
 
-  store!: Store
+  store?: Store
 
 
   constructor(private storeService:StoreService){
@@ -29,9 +29,9 @@ export class Footer implements OnInit {
     })
   }
 
- getCurrYear() {
-  return new Date().getFullYear();
-}
+  getCurrYear() {
+    return new Date().getFullYear();
+  }
 
 
 

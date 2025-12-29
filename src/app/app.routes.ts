@@ -5,10 +5,10 @@ import { Auth } from './layouts/auth/auth';
 import { Register } from './pages/register/register';
 import { Home } from './pages/home/home';
 import { Profile } from './pages/profile/profile';
-import { CartPage } from './pages/cart-page/cart-page';
-import { ProductsPage } from './pages/products-page/products-page';
-import { AdminPage } from './pages/admin-page/admin-page';
-import { CategoriesPage } from './pages/categories-page/categories-page';
+import { CartPage } from './pages/cart/cart-page';
+import { ProductsPage } from './pages/products/products-page';
+import { AdminPage } from './pages/admin/admin-page';
+import { CategoriesPage } from './pages/categories/categories-page';
 import { authGuard } from './core/guards/auth-guard';
 import { Help } from './pages/help/help';
 import { publicGuard } from './core/guards/public-guard';
@@ -19,6 +19,18 @@ import { Purchases } from './pages/purchases/purchases';
 import { Terms } from './pages/terms/terms';
 import { ConfigPages } from './layouts/config-pages/config-pages';
 import { Privacy } from './pages/privacy/privacy';
+import { CredentialsForm } from './pages/credentials-form/credentials-form';
+import { FavoritesPage } from './pages/favorites/favorites-page';
+import { CategoryFormPage } from './pages/category-form/category-form-page';
+import { ProductForm } from './components/product-form/product-form';
+import { MercadopagoButton } from './components/mercadopago-button/mercadopago-button';
+import { Shipments } from './pages/shipments/shipments';
+import { Checkout } from './pages/checkout/checkout';
+import { ProductsFileForm } from './pages/products-file-form/products-file-form.component';
+import { Notification } from './pages/notification/notification';
+
+import { PurchaseDetail } from './pages/purchase-detail/purchase-detail';
+import { ShippingPage } from './pages/shipping/shipping';
 
 export const routes: Routes = [
   {
@@ -27,13 +39,14 @@ export const routes: Routes = [
     children: [
       { path: 'login', component: Login, canActivate: [publicGuard] },
       { path: 'register', component: Register, canActivate: [publicGuard] },
-      { path: 'admin', component: AdminPage },
-      { path:'admin/edit/store',component:StoreForm},
-      { path:'admin/edit/carousel',component:CarouselForm},
-      { path:'admin/edit/carousel/:id',component:CarouselForm},
+      { path: 'settings', component: CredentialsForm, canActivate: [authGuard] },
+      { path: 'admin', component: AdminPage, canActivate: [authGuard] },
+      { path: 'admin/edit/store', component: StoreForm, canActivate: [authGuard], data: { permissions: ['ADMIN'] } },
+      { path: 'admin/edit/carousel', component: CarouselForm, canActivate: [authGuard], data: { permissions: ['ADMIN'] } },
+      { path: 'admin/edit/carousel/:id', component: CarouselForm, canActivate: [authGuard], data: { permissions: ['ADMIN'] } },
+      { path: 'admin/edit/notification', component: Notification, canActivate: [authGuard], data: { permissions: ['ADMIN'] } },
       { path: '', redirectTo: 'login', pathMatch: 'full' },
       { path: '**', redirectTo: 'login' }
-
     ]
   },
   {
@@ -42,12 +55,24 @@ export const routes: Routes = [
     children: [
       { path: 'home', component: Home },
       { path: 'products', component: ProductsPage },
+      { path: 'products/page/:page', component: ProductsPage },
       { path: 'products/details/:id', component: ProductDetail },
       { path: 'products/search/:q', component: ProductsPage },
       { path: 'categories', component: CategoriesPage },
+      { path: 'favorites', component: FavoritesPage },
       { path: 'cart', component: CartPage, canActivate: [authGuard] },
       { path: 'purchases', component: Purchases, canActivate: [authGuard] },
-      { path: '', redirectTo: 'home', pathMatch: 'full' }
+      { path: 'product-form', component: ProductForm, canActivate: [authGuard] },
+      { path: 'product-import', component: ProductsFileForm, canActivate: [authGuard], data: { permissions: ['ADMIN'] } },
+      { path: 'category-form', component: CategoryFormPage, canActivate: [authGuard] },
+      { path: 'favorites', component: FavoritesPage },
+      { path: 'cart', component: CartPage, canActivate: [authGuard] },
+
+      { path: 'purchases', component: Purchases, canActivate: [authGuard] },
+      { path: 'purchase/:id', component: PurchaseDetail, canActivate: [authGuard] },
+      { path: '', redirectTo: 'home', pathMatch: 'full' },
+      { path: 'shipments', component: Shipments, canActivate: [authGuard], data: { permissions: ['ADMIN']}},
+
     ]
   },
   {
@@ -62,8 +87,15 @@ export const routes: Routes = [
     children: [
       { path: '', component: Help },
       { path: 'terms', component: Terms },
-      { path: 'privacy', component: Privacy},
+      { path: 'privacy', component: Privacy },
     ]
   },
-  { path: '**', redirectTo: 'home', pathMatch: 'full' }
+  { path: 'cart/checkout',   component: Auth,
+    canActivate: [authGuard],
+    children: [{ path: '', component: Checkout }]},
+  { path: 'cart/shipping', component: Auth,
+      canActivate: [authGuard],
+      children: [{ path: '', component: ShippingPage }]},
+  { path: '**', redirectTo: 'home', pathMatch: 'full' },
+
 ];

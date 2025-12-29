@@ -1,16 +1,27 @@
+import { Shipment, ShipmentRequest } from "./shipment";
+import { Transaction } from "./transaction";
+
 export interface SaleRequest {
-  clientId: number;
+  userId: number;
   transaction: TransactionRequest;
+  shipment?: ShipmentRequest
 }
 
 export interface TransactionRequest {
-  paymentMethod: string;
-  description: string;
+  paymentMethod?: string;
   detailTransactions: DetailTransactionRequest[];
+  description: string;
 }
 
 export interface DetailTransactionRequest {
   productID: number;
   quantity: number;
-  subtotal: number;
+}
+
+export interface Sale {
+  id: number
+  userId: number
+  transaction: Transaction
+  shipmentId: number
+  userDni: number
 }

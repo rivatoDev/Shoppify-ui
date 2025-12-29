@@ -1,0 +1,71 @@
+<div class="shipment-card">
+    <div class="shipment-details">
+        @if (isAdmin) {
+            <select 
+                class="status-dropdown"
+                [ngClass]="getStatusClass(shipment.status)"
+                [(ngModel)]="shipment.status"
+                (ngModelChange)="updateStatus(shipment.status)">
+
+                <option value="PENDING">{{ getStatusLabel('PENDING') }}</option>
+                <option value="PROCESSING">{{ getStatusLabel('PROCESSING') }}</option>
+                <option value="SHIPPED">{{ getStatusLabel('SHIPPED') }}</option>
+                <option value="DELIVERED">{{ getStatusLabel('DELIVERED') }}</option>
+                <option value="CANCELLED">{{ getStatusLabel('CANCELLED') }}</option>
+                <option value="RETURNED">{{ getStatusLabel('RETURNED') }}</option>
+            </select>
+        }@else {
+            <div [ngClass]="getStatusClass(shipment.status)">
+                <p>{{ getStatusLabel(shipment.status) }}</p>
+            </div>
+        }
+
+        <div class="data-container">
+            <div class="data-row">
+                <span class="label">Inicio</span>
+                <span class="value">{{ shipment.startDate | date:'dd/MM/yyyy' }}</span>
+            </div>
+
+            @if (shipment.endDate) {
+                <div class="data-row">
+                    <span class="label">Fin</span>
+                    <span class="value">{{ shipment.endDate | date:'dd/MM/yyyy' }}</span>
+                </div>
+            }
+
+            @if (shipment.pickup) {
+                <div class="data-row">
+                    <span class="label">Entrega</span>
+                    <span class="value pickup-badge">Retiro en local</span>
+                </div>
+                @if (shipment.street || shipment.city || shipment.zip) {
+                    <div class="data-row address-row">
+                        <span class="label">Direccion</span>
+                        <span class="value address-text">
+                            {{ shipment.street }} {{ shipment.number || '' }},
+                            {{ shipment.city }},
+                            {{ shipment.zip }}
+                        </span>
+                    </div>
+                }
+            }@else {
+                <div class="data-row address-row">
+                    <span class="label">Direccion</span>
+                    <span class="value address-text">
+                        {{ shipment.street }} {{ shipment.number }},
+                        {{ shipment.city }},
+                        {{ shipment.zip }}
+                    </span>
+                </div>
+            }
+
+            @if (shipment.notes) {
+                <div class="data-row notes-row">
+                    <span class="label">Notas</span>
+                    <span class="value scroll-text" id="notes">{{ shipment.notes }}</span>
+                </div>
+            }
+        </div>
+    </div>
+
+</div>

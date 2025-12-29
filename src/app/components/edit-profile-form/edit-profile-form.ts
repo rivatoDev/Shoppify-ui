@@ -28,7 +28,7 @@ export class EditProfileForm {
       firstName: [this.data.firstName, [Validators.required, Validators.minLength(2)]],
       lastName: [this.data.lastName, [Validators.required, Validators.minLength(2)]],
       dni: [this.data.dni, [Validators.required, Validators.minLength(8), Validators.maxLength(8)]],
-      phone: [this.data.phone, [Validators.required, Validators.pattern(/^\d+$/)]],
+      phone: [this.data.phone, [Validators.required, Validators.pattern(/^\d+$/), Validators.minLength(7), Validators.maxLength(20)]],
       img: [this.data.img || '']
     })
   }
@@ -41,7 +41,7 @@ export class EditProfileForm {
       };
       this.dialogRef.close(updatedUser)
     } else {
-      this.form.markAllAsTouched() //para que las validaciones se muestren
+      this.form.markAllAsTouched()
     }
   }
 

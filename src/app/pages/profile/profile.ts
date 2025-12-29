@@ -7,11 +7,12 @@ import { EditProfileForm } from '../../components/edit-profile-form/edit-profile
 import { MatDialog } from '@angular/material/dialog';
 import { AuthService } from '../../services/auth-service';
 import Swal from 'sweetalert2';
-import { ImageFallbackDirective } from "../../directives/image-fallback";
+import { ImageFallbackDirective } from "../../core/directives/image-fallback";
+import { BackButtonComponent } from '../../components/back-button/back-button';
 
 @Component({
   selector: 'app-profile',
-  imports: [ImageFallbackDirective],
+  imports: [ImageFallbackDirective, BackButtonComponent],
   templateUrl: './profile.html',
   styleUrl: './profile.css',
   encapsulation: ViewEncapsulation.None
@@ -28,14 +29,14 @@ export class Profile implements OnInit {
     private router: Router,
     private dialog: MatDialog,
     private aService: AuthService
-  ) {}
+  ) { }
 
   ngOnInit() {
-    
+
     this.renderProfile()
   }
 
-  renderProfile(){
+  renderProfile() {
     this.id = this.aService.user()?.id
     this.uService.get(this.id!).subscribe({
       next: u => {
@@ -80,7 +81,7 @@ export class Profile implements OnInit {
   }
 
   editarConfiguracion() {
-    this.router.navigate([''])  //TODO
+    this.router.navigate(["/auth/settings"])
   }
 
   verCompras() {
@@ -91,7 +92,7 @@ export class Profile implements OnInit {
     this.router.navigate(["/help"])
   }
 
-  verMas() {
-    this.router.navigate([""]) //TODO cuando agreguemos wishlist
+  verFavoritos() {
+    this.router.navigate(["/favorites"])
   }
 }

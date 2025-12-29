@@ -1,0 +1,97 @@
+<div class="category-page">
+  <section class="category-content">
+    <aside class="category-sidebar" aria-label="Filtros">
+      <app-category-refiner
+        [categories]="categories"
+        [initialFilters]="currentFilters"
+        (filterChange)="onFilterChange($event)">
+      </app-category-refiner>
+    </aside>
+
+    <div class="category-main">
+      <header class="category-toolbar">
+        <div class="toolbar-details">
+          <h2>Resultados</h2>
+          <p>{{ categories.length }} categorias encontradas</p>
+        </div>
+
+        @if (auth.permits().includes('ADMIN')) {
+          <div class="admin-actions admin-actions--toolbar">
+            <button
+              type="button"
+              class="edit-toggle edit-toggle--compact"
+              [class.is-active]="editMode"
+              (click)="editToggle()">
+              <span class="edit-toggle__icon" aria-hidden="true"></span>
+              <span class="edit-toggle__label">
+                {{ editMode ? 'Edición activa' : 'Editar catálogo' }}
+              </span>
+            </button>
+          </div>
+        }
+      </header>
+
+      @if (categories.length > 0) {
+        <section class="category-grid" aria-label="Listado de productos">
+          @if (auth.permits().includes('ADMIN') && editMode) {
+            <article class="category-card category-card--create">
+              <button 
+                type="button"
+                class="create-category-button"
+                (click)="createCategory()">
+                <span class="create-category-button__icon" aria-hidden="true">+</span>
+                <span class="create-category-button__content">
+                  <span class="create-category-button__title">Crear nueva categoria</span>
+                  <span class="create-category-button__helper">Abrí el formulario para agregar una categoria al catálogo.</span>
+                </span>
+              </button>
+            </article>
+          }
+
+          @for (p of categories; track p.id) {
+            <article
+              class="category-card"
+              [class.category-card--editing]="auth.permits().includes('ADMIN') && editMode">
+              <app-category-card [category]="p"></app-category-card>
+
+              @if (auth.permits().includes('ADMIN') && editMode) {
+                <div class="category-admin-actions">
+                  <button
+                    class="admin-action admin-action--delete"
+                    type="button"
+                    (click)="deleteCategory(p.id)">
+                    <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+                      <path
+                        d="M9 3h6l1 2h4v2h-1v12a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V7H4V5h4l1-2Zm-1 4v11h2V7H8Zm4 0v11h2V7h-2Zm4 0v11h2V7h-2Z"
+                        fill="currentColor"
+                      />
+                    </svg>
+                    <span>Borrar</span>
+                  </button>
+
+                  <button
+                    class="admin-action admin-action--edit"
+                    type="button"
+                    (click)="editCategory(p)">
+                    <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+                      <path
+                        d="M4 17.25V20h2.75L17.81 8.94l-2.75-2.75L4 17.25ZM19.71 7.04a1 1 0 0 0 0-1.41l-2.34-2.34a1 1 0 0 0-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83Z"
+                        fill="currentColor"
+                      />
+                    </svg>
+                    <span>Editar</span>
+                  </button>
+                </div>
+              }
+            </article>
+          }
+        </section>
+      } @else {
+        <div class="categories-empty">
+          <h3>No se encontraron resultados</h3>
+          <p>Probá ajustando los filtros o restableciendo el catálogo completo.</p>
+        </div>
+      }
+    </div>
+  </section>
+</div>

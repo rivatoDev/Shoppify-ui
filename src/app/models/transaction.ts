@@ -1,12 +1,26 @@
 import { DetailTransaction } from "./detailTransaction";
+import { PaymentDetail } from "./paymentDetail";
 
 export interface Transaction {
-  id?: number,
-  total: number;
-  dateTime: string;  
-  paymentMethod: 'CASH' | 'CREDIT_CARD' | 'DEBIT_CARD' | 'TRANSFER' | string;
-  description: string;
-  type: 'SALE' | 'PURCHASE' | 'RETURN' | string;
-  storeName: string;
-  detailTransactions: DetailTransaction[];
+  id?: number
+  userId?: number
+  total: number
+  paymentStatus: PaymentStatus
+  dateTime: string
+  paymentMethod: string
+  description: string
+  type: string
+  storeName: string
+  detailTransactions: DetailTransaction[]
+  paymentDetail?: PaymentDetail
+  paymentLink?: string
 }
+
+export enum PaymentStatus {
+    APPROVED = 'APPROVED',
+    PENDING = 'PENDING',
+    REJECTED = 'REJECTED',
+    CANCELLED = 'CANCELLED',
+    REFUNDED = 'REFUNDED'
+}
+
