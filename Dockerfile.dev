@@ -5,7 +5,8 @@ WORKDIR /app
 ENV ROLLUP_NO_NATIVE=1
 
 COPY package.json package-lock.json ./
-RUN npm install --omit=optional --no-audit --no-fund
+
+RUN npm ci --no-audit --no-fund --ignore-scripts
 
 COPY . .
 

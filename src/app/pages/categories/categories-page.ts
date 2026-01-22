@@ -85,25 +85,8 @@ export class CategoriesPage implements OnInit {
   }
 
   editCategory(category: Category): void {
-    if (this.screenSizeService.isScreenSmall()) {
       this.createCategoryService.setData(this.categories, category);
       this.router.navigate(['/category-form']);
-    } else {
-    this.dialog.open(CategoryFormDialog, {
-      maxWidth: "none",
-      width: '80vw',
-      data: {
-        category: category,
-      },
-      disableClose: true,
-      panelClass: 'category-dialog-panel'
-    }).afterClosed().subscribe(result => {
-      if (result) {
-        this.swal.success("La categoría se editó correctamente!")
-        this.renderCategoriesWithFilters(this.currentFilters)
-        }
-      })
-    }
   }
 
 
@@ -116,15 +99,7 @@ export class CategoriesPage implements OnInit {
 
 
   createCategory() {
-    if (this.screenSizeService.isScreenSmall()) {
-      this.router.navigate(['/category-form'])
-    } else {
-      this.createCategoryService.openDialog().afterClosed().subscribe(result => {
-        if (result) {
-          this.renderCategoriesWithFilters(this.currentFilters)
-        }
-      })
-    }
+    this.router.navigate(['/category-form'])
   }
 
   private parseFilters(params: Params): CategoryParams {

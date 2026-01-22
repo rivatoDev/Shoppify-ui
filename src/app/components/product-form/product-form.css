@@ -23,7 +23,7 @@ app-product-form {
     backdrop-filter: blur(12px);
     box-shadow: 0 18px 38px rgba(15, 23, 42, 0.12);
     padding: 1rem;
-    max-width: 500px;
+    width: 30rem;
 }
 
 #product-form {
