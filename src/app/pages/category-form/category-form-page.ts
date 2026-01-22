@@ -7,11 +7,6 @@ import { BackButtonComponent } from '../../components/back-button/back-button';
   standalone: true,
   imports: [CategoryForm, BackButtonComponent],
   templateUrl: './category-form-page.html',
-  styles: [`
-    app-back-button {
-      margin: 20px;
-      display: block;
-    }
-  `]
+  styleUrl: './category-form-page.css'
 })
 export class CategoryFormPage { }

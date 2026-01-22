@@ -31,6 +31,7 @@ import { Notification } from './pages/notification/notification';
 
 import { PurchaseDetail } from './pages/purchase-detail/purchase-detail';
 import { ShippingPage } from './pages/shipping/shipping';
+import { ProductFormPage } from './pages/product-form-page/product-form-page';
 
 export const routes: Routes = [
   {
@@ -62,7 +63,7 @@ export const routes: Routes = [
       { path: 'favorites', component: FavoritesPage },
       { path: 'cart', component: CartPage, canActivate: [authGuard] },
       { path: 'purchases', component: Purchases, canActivate: [authGuard] },
-      { path: 'product-form', component: ProductForm, canActivate: [authGuard] },
+      { path: 'product-form', component: ProductFormPage, canActivate: [authGuard] },
       { path: 'product-import', component: ProductsFileForm, canActivate: [authGuard], data: { permissions: ['ADMIN'] } },
       { path: 'category-form', component: CategoryFormPage, canActivate: [authGuard] },
       { path: 'favorites', component: FavoritesPage },
