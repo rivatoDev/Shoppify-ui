@@ -189,27 +189,8 @@ export class ProductsPage {
   }
 
   editProduct(product: Product): void {
-    if (this.screenSizeService.isScreenSmall()) {
       this.createProductService.setData(this.refinedProducts, this.categories, product);
       this.router.navigate(['/product-form']);
-    } else {
-      this.dialog.open(ProductFormDialog, {
-        maxWidth: "none",
-        width: '80vw',
-        height: '90vh',
-        data: {
-          product: product,
-          products: this.refinedProducts,
-          categories: this.categories
-        },
-        disableClose: true,
-        panelClass: 'product-dialog-panel'
-      }).afterClosed().subscribe(result => {
-        if (result) {
-          this.renderRefinedProducts(this.currentFilters);
-        }
-      })
-    }
   }
 
 
@@ -240,21 +221,9 @@ export class ProductsPage {
     });
   }
 
-
   createProduct() {
-    if (this.screenSizeService.isScreenSmall()) {
       this.createProductService.setData(this.refinedProducts, this.categories);
       this.router.navigate(['/product-form']);
-    } else {
-      this.createProductService.openDialog(
-        this.refinedProducts,
-        this.categories,
-        this.currentFilters,
-        (filters: any) => this.renderRefinedProducts(filters)
-      ).afterClosed().subscribe(() => {
-        this.renderRefinedProducts(this.currentFilters);
-      })
-    }
   }
 
   goToImport() {
