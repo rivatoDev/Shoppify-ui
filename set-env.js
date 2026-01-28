@@ -4,10 +4,10 @@ const path = require('path');
 const targetPath = path.join(__dirname, './src/environments/secrets.ts'); 
 
 const envConfigFile = `
-export const secrets = {
-  apiUrl: '${process.env.apiUrl}',
-  mpPk: '${process.env.mpPk}'
-};
+    export const Secrets = {
+    apiUrl: '${process.env.apiUrl}',
+    mpPk: '${process.env.mpPk}'
+    };
 `;
 
 fs.writeFileSync(targetPath, envConfigFile);
