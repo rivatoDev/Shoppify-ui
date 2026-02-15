@@ -26,7 +26,6 @@ import { Carouselitem } from '../../models/carouselitem';
 export class Home implements OnInit {
   products: Product[] = [];
   categories: Category[] = [];
-  carouselItems: Carouselitem[] = [];
 
   private allProductsData: Product[] = [];
   private allCategoriesData: Category[] = [];
@@ -46,14 +45,12 @@ export class Home implements OnInit {
   constructor(
     private productService: ProductService,
     private categoryService: CategoryService,
-    private carouselService: CarouselService
   ) {}
 
   ngOnInit(): void {
     this.updateGridConfig();
     this.renderProducts();
     this.renderCategories();
-    this.renderCarousel();
   }
 
   @HostListener('window:resize')
@@ -78,15 +75,6 @@ export class Home implements OnInit {
       next: (categories) => {
         this.allCategoriesData = categories.data;
         this.applySliceToCategories();
-      },
-      error: (err) => console.error(err)
-    });
-  }
-
-  renderCarousel(): void {
-    this.carouselService.getCarousel().subscribe({
-      next: (carousel) => {
-        this.carouselItems = carousel;
       },
       error: (err) => console.error(err)
     });

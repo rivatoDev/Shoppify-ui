@@ -6,12 +6,21 @@ import { PromotionCarousel } from "../promotion-carousel/promotion-carousel";
 import { CarouselService } from '../../services/carousel-service';
 import { Carouselitem } from '../../models/carouselitem';
 import { ImageFallbackDirective } from '../../core/directives/image-fallback';
+import { BackButtonComponent } from '../back-button/back-button';
+import { NgxSkeletonLoaderModule } from 'ngx-skeleton-loader';
+import { finalize } from 'rxjs';
 
 
 
 @Component({
   selector: 'app-carousel-form',
-  imports: [CommonModule, ReactiveFormsModule, PromotionCarousel,ImageFallbackDirective],
+  imports: [
+    CommonModule, 
+    ReactiveFormsModule, 
+    PromotionCarousel,
+    ImageFallbackDirective, 
+    BackButtonComponent,
+    NgxSkeletonLoaderModule],
   templateUrl: './carousel-form.html',
   styleUrl: './carousel-form.css'
 })
@@ -19,6 +28,9 @@ export class CarouselForm implements OnInit {
 
   carouselItems: Carouselitem[] = [];
   selectedItem? : Carouselitem
+
+  isLoading: boolean = true
+
   fg!: FormGroup;
 
 
@@ -36,18 +48,18 @@ export class CarouselForm implements OnInit {
   }
 
   renderItems(){
-    this.carouselService.getCarousel().subscribe({
+    this.carouselService.getCarousel()
+    .subscribe({
       next:(data) => {
         this.carouselItems = data
         const id = this.route.snapshot.params['id']
-
+        this.isLoading = false
         if(id){
-        this.selectedItem = data.find(a => a.id == id)
+          this.selectedItem = data.find(a => a.id == id)
         }
       },
     })
   }
-
 
   resetCurrent(){
     if(this.selectedItem){
@@ -57,8 +69,6 @@ export class CarouselForm implements OnInit {
       this.fg.reset()
     }
   }
-
-
 
   onSubmit(){
     if(this.fg.invalid){
