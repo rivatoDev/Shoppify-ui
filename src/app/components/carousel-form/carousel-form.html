@@ -1,4 +1,5 @@
 <section class="carousel-editor">
+    <app-back-button></app-back-button>
     <div class="editor-shell">
         <header class="editor-header">
             <div class="header-copy">
@@ -12,20 +13,16 @@
             </div>
             <div class="header-meta">
                 <span class="panel-eyebrow">Vista previa</span>
-
-                <app-promotion-carousel  [carouselItems]="carouselItems"></app-promotion-carousel>
+                <app-promotion-carousel></app-promotion-carousel>
             </div>
-                    <button type="button" class="header-back" (click)="goBack()">Volver</button>
-</header>
+        </header>
 
         <div class="editor-grid">
             <article class="panel preview-panel">
                 <div class="panel-header">
                    <div class="slides-grid-container">
                         <div class="slides-grid">
-
                                 <button type="button" class="slide-card"
-                                
                                 (click)="createItem()"
                                  [class.active] = "!selectedItem">
                                 
@@ -35,24 +32,34 @@
                                 
                             </button>
 
-
                             @for (item of carouselItems; track item.id) {
-                            <button type="button" class="slide-card"
-                                (click)="onPreviewSelect(item)"
-                                [class.active] = "selectedItem?.id == item.id">
-                                <div class="thumb" aria-hidden="true">
-                                    <img [src]="item.url" [alt]="item.title" loading="lazy" />
-                                </div>
-                                <div class="slide-meta">
-                                    <span class="slide-title">{{ item.title }}</span>
-                                    <span class="slide-link">{{ item.href }}</span>
-                                </div>
-                            </button>
+                                @if (item.id < 0) {
+                                    <div class="hero-skeleton">
+                                        <ngx-skeleton-loader
+                                            appearance="line"
+                                            [theme]="{
+                                            height: '100rem',
+                                            width: '100%',
+                                            'border-radius': '1.5rem',
+                                            }"
+                                        />
+                                    </div>
+                                } @else {
+                                    <button 
+                                        type="button" class="slide-card"
+                                        (click)="onPreviewSelect(item)"
+                                        [class.active] = "selectedItem?.id == item.id">
+                                    <div class="thumb" aria-hidden="true">
+                                        <img [src]="item.url" [alt]="item.title" loading="lazy" />
+                                    </div>
+                                    <div class="slide-meta">
+                                        <span class="slide-title">{{ item.title }}</span>
+                                        <span class="slide-link">{{ item.href }}</span>
+                                    </div>
+                                    </button>
+                                }
                             }
-                         
                         </div>
-
-
                    </div>
 
                 </div>

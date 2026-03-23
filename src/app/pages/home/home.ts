@@ -10,6 +10,9 @@ import { globalParams } from '../../models/filters/globalParams';
 import { PromotionCarousel } from "../../components/promotion-carousel/promotion-carousel";
 import { CarouselService } from '../../services/carousel-service';
 import { Carouselitem } from '../../models/carouselitem';
+import { delay, finalize, startWith } from 'rxjs';
+import { SkeletonFactoryService } from '../../services/skeleton-factory-service';
+import { NgxSkeletonLoaderModule } from 'ngx-skeleton-loader';
 
 @Component({
   selector: 'app-home',
@@ -18,15 +21,18 @@ import { Carouselitem } from '../../models/carouselitem';
     ProductCard,
     CategoryCard,
     RouterLink,
-    PromotionCarousel
+    PromotionCarousel,
+    NgxSkeletonLoaderModule
   ],
   templateUrl: './home.html',
   styleUrls: ['./home.css']
 })
 export class Home implements OnInit {
+  productsIsLoading: boolean = true;
+  categoriesIsLoading: boolean = true;
+  
   products: Product[] = [];
   categories: Category[] = [];
-  carouselItems: Carouselitem[] = [];
 
   private allProductsData: Product[] = [];
   private allCategoriesData: Category[] = [];
@@ -45,15 +51,14 @@ export class Home implements OnInit {
 
   constructor(
     private productService: ProductService,
+    private skeletonFactory: SkeletonFactoryService,
     private categoryService: CategoryService,
-    private carouselService: CarouselService
   ) {}
 
   ngOnInit(): void {
     this.updateGridConfig();
     this.renderProducts();
     this.renderCategories();
-    this.renderCarousel();
   }
 
   @HostListener('window:resize')
@@ -63,32 +68,77 @@ export class Home implements OnInit {
     this.applySliceToCategories();
   }
 
+  createProductsSkeletons(count: number) {
+    return this.skeletonFactory.createSkeletonItems<Product>(count, (i) => ({
+      id: -i - 1,
+      name: "",
+      price: 0,
+      unitPrice: 0,
+      stock: 0,
+      sku: "",
+      discountPercentage : 0, 
+      barcode: "",
+      description: "",
+      brand: "",
+      imgURL: "",
+      soldQuantity: 0,
+      categories: [],
+      inactive: false
+    }))
+  }
+
+  createCategoriesSkeletons(count: number) {
+    return this.skeletonFactory.createSkeletonItems<Category>(count, (i) => ({
+      id: -i - 1,
+      name: "",
+      imgUrl: ""
+    }))
+  }
+
   renderProducts(): void {
-    this.productService.getList(this.productParams).subscribe({
+    this.productService.getList(this.productParams)
+    .pipe(
+      startWith({
+        data: this.createProductsSkeletons(5),
+        page: {
+          number: 0,
+          size: 5,
+          totalElements: 0,
+          totalPages: 0
+        }
+      }),
+      finalize(() => this.productsIsLoading = false)
+    )
+    .subscribe({
       next: (products) => {
         this.allProductsData = products.data;
         this.applySliceToProducts();
       },
-      error: (err) => console.error(err)
+      error: (err) => {console.error(err), this.products = []}
     });
   }
 
   renderCategories(): void {
-    this.categoryService.getList(this.categoryParams).subscribe({
+    this.categoryService.getList(this.categoryParams)
+    .pipe(
+      delay(3000),
+      startWith({
+        data: this.createCategoriesSkeletons(5),
+        page: {
+          number: 0,
+          size: 5,
+          totalElements: 0,
+          totalPages: 0
+        }
+      }),
+      finalize(() => this.categoriesIsLoading = false)
+    )
+    .subscribe({
       next: (categories) => {
         this.allCategoriesData = categories.data;
         this.applySliceToCategories();
       },
-      error: (err) => console.error(err)
-    });
-  }
-
-  renderCarousel(): void {
-    this.carouselService.getCarousel().subscribe({
-      next: (carousel) => {
-        this.carouselItems = carousel;
-      },
-      error: (err) => console.error(err)
+      error: (err) => {console.error(err), this.categories = []}
     });
   }
 

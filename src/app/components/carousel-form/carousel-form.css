@@ -5,6 +5,14 @@
   padding: 2.5rem 1.5rem 3rem;
 }
 
+app-back-button {
+    display: block;
+    position: sticky;
+    top: 12px;
+    margin: 1rem;
+    z-index: 1000;
+}
+
 .carousel-editor {
   max-width: 1400px;
   margin: 0 auto;
@@ -14,17 +22,6 @@
   display: flex;
   flex-direction: column;
   gap: 2rem;
-}
-
-.editor-header {
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: space-between;
-  gap: 1.5rem;
-  padding: 2.5rem;
-  border-radius: 1.5rem;
-  background: linear-gradient(135deg, #eef2ff 0%, #e0e7ff 48%, #ede9fe 100%);
-  box-shadow: 0 28px 60px rgba(79, 70, 229, 0.18);
 }
 
 .header-copy h1 {
@@ -65,37 +62,12 @@
   margin-bottom: 0.75rem;
 }
 
-.header-back {
-  position: absolute;
-  top: 1.75rem;
-  right: 2.5rem;
-  padding: 0.75rem 1.35rem;
-  border-radius: 999px;
-  border: 1px solid rgba(99, 102, 241, 0.2);
-  background: rgba(255, 255, 255, 0.9);
-  color: var(--primary-hover);
-  font-weight: 600;
-  font-size: 0.95rem;
-  cursor: pointer;
-  transition: transform 0.15s ease, box-shadow 0.2s ease, border-color 0.2s ease;
-  box-shadow: 0 12px 24px rgba(79, 70, 229, 0.15);
-}
-
-.header-back:hover {
-  border-color: rgba(79, 70, 229, 0.5);
-  transform: translateY(-1px);
-  box-shadow: 0 16px 32px rgba(79, 70, 229, 0.2);
-}
-
-.header-back:active {
-  transform: translateY(0);
-}
-
 .header-meta {
   display: flex;
   gap: 1rem;
   flex-wrap: wrap;
   align-items: flex-start;
+  flex-direction: column;
 }
 
 .meta-card {
@@ -134,6 +106,7 @@
   padding: 2rem;
   box-shadow: 0 24px 55px rgba(15, 23, 42, 0.12);
   border: 1px solid var(--border-color);
+  height: 35rem;
 }
 
 ´ .panel-header {
@@ -215,6 +188,10 @@
 .preview-empty.mini {
   min-height: 140px;
   padding: 1.5rem;
+}
+
+.preview-panel {
+  overflow-y: auto;
 }
 
 .carousel-form {
@@ -341,14 +318,10 @@
   gap: 1rem;
 }
 
-.slides-grid-container {
-  max-height: 450px;
-  overflow-y: auto;
-}
-
 .slide-card {
   display: flex;
   flex-direction: column;
+  justify-content: center;
   border-radius: 1.2rem;
   border: 1px solid rgba(148, 163, 184, 0.2);
   background: rgba(248, 250, 252, 0.9);
@@ -372,11 +345,13 @@
 }
 
 .thumb {
-  height: 120px;
+  height: 90%;
   border-radius: 1rem;
   overflow: hidden;
   background: rgba(226, 232, 240, 0.8);
 }
+
+
 
 .thumb img {
   width: 100%;
@@ -400,6 +375,16 @@
   font-size: 0.85rem;
   color: var(--primary-light);
   word-break: break-all;
+}
+
+.hero-skeleton {
+  aspect-ratio: 600 / 156;
+  border-radius: 1.5rem;
+  overflow: hidden;
+  box-shadow: 0 18px 40px rgba(30, 64, 175, 0.18);
+  width: 100%;
+  height: 100%;
+  min-height: 135px;
 }
 
 @media (max-width: 1024px) {

@@ -1,26 +1,38 @@
-     <div class="hero-media">
-      @if (carouselItems.length) {
-        <c-carousel [interval]="6000">
-          <c-carousel-indicators />
-          <c-carousel-inner>
-            @for (item of carouselItems; track item.title) {
-
-              <c-carousel-item>
-                <img (click)="onClick(item)"
-                  [src]="item.url"
-                  alt="{{ item.title }}"
-                  class="hero-image"
-                  loading="lazy"
-                />
-              </c-carousel-item>
-            }
-          </c-carousel-inner>
-          <c-carousel-control caption="Anterior" direction="prev"></c-carousel-control>
-          <c-carousel-control caption="Siguiente" direction="next"></c-carousel-control>
-        </c-carousel>
-      } @else {
-        <div class="carousel-placeholder">
-          <span>Estamos preparando nuevas ofertas para ti...</span>
+<div class="hero-media">
+      @if (isLoading) {
+        <div class="hero-skeleton">
+          <ngx-skeleton-loader
+            appearance="line"
+            [theme]="{
+              height: '100%',
+              width: '100%',
+              'border-radius': '1.5rem',
+            }"
+          />
         </div>
+      } @else {
+          @if (carouselItems.length) {
+            <c-carousel [interval]="6000">
+              <c-carousel-indicators />
+              <c-carousel-inner>
+                @for (item of carouselItems; track item.title) {
+                  <c-carousel-item>
+                    <img (click)="onClick(item)"
+                      [src]="item.url"
+                      alt="{{ item.title }}"
+                      class="hero-image"
+                      loading="lazy"
+                    />
+                  </c-carousel-item>
+                }
+              </c-carousel-inner>
+              <c-carousel-control caption="Anterior" direction="prev"></c-carousel-control>
+              <c-carousel-control caption="Siguiente" direction="next"></c-carousel-control>
+            </c-carousel>
+        } @else {
+          <div class="carousel-placeholder">
+            <span>Estamos preparando nuevas ofertas para ti...</span>
+          </div>
+        }
       }
     </div>

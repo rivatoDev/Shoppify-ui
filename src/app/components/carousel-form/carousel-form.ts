@@ -1,17 +1,27 @@
 import { CommonModule } from '@angular/common';
-import { Component, OnInit } from '@angular/core';
+import { Component, inject, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import { PromotionCarousel } from "../promotion-carousel/promotion-carousel";
 import { CarouselService } from '../../services/carousel-service';
 import { Carouselitem } from '../../models/carouselitem';
 import { ImageFallbackDirective } from '../../core/directives/image-fallback';
+import { BackButtonComponent } from '../back-button/back-button';
+import { NgxSkeletonLoaderModule } from 'ngx-skeleton-loader';
+import { finalize, startWith } from 'rxjs';
+import { SkeletonFactoryService } from '../../services/skeleton-factory-service';
 
 
 
 @Component({
   selector: 'app-carousel-form',
-  imports: [CommonModule, ReactiveFormsModule, PromotionCarousel,ImageFallbackDirective],
+  imports: [
+    CommonModule, 
+    ReactiveFormsModule, 
+    PromotionCarousel,
+    ImageFallbackDirective, 
+    BackButtonComponent,
+    NgxSkeletonLoaderModule],
   templateUrl: './carousel-form.html',
   styleUrl: './carousel-form.css'
 })
@@ -19,7 +29,12 @@ export class CarouselForm implements OnInit {
 
   carouselItems: Carouselitem[] = [];
   selectedItem? : Carouselitem
+
+  isLoading: boolean = true
+
   fg!: FormGroup;
+
+  skeletonFactory = inject(SkeletonFactoryService);
 
 
   constructor(
@@ -35,19 +50,34 @@ export class CarouselForm implements OnInit {
     this.initForm()
   }
 
+  createSkeletonItems(count: number) {
+    return this.skeletonFactory.createSkeletonItems<Carouselitem>(count, (i) => ({
+      id: -i - 1,
+      url: '',
+      title: '',
+      href: ''
+    }));
+  }
+
   renderItems(){
-    this.carouselService.getCarousel().subscribe({
+    this.carouselService.getCarousel()
+    .pipe(
+      startWith(this.createSkeletonItems(8)),
+      finalize(() => this.isLoading = true)
+    )
+    .subscribe({
       next:(data) => {
         this.carouselItems = data
         const id = this.route.snapshot.params['id']
-
         if(id){
-        this.selectedItem = data.find(a => a.id == id)
+          this.selectedItem = data.find(a => a.id == id)
         }
       },
+      error: (error) => {
+        console.error(error);
+      }
     })
   }
-
 
   resetCurrent(){
     if(this.selectedItem){
@@ -57,8 +87,6 @@ export class CarouselForm implements OnInit {
       this.fg.reset()
     }
   }
-
-
 
   onSubmit(){
     if(this.fg.invalid){
