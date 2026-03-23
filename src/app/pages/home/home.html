@@ -17,27 +17,44 @@
 
  
   </section>
+    @if (!products.length) {
+      <section class="home-section empty-state"> 
+        <h2>Construimos nuevas colecciones</h2> 
+        <p>Muy pronto encontraras productos disponibles para navegar.</p> 
+      </section>
+    } @else {
+        <section class="home-section product-showcase">
+          <div class="section-header">
+            <h2>Productos que pueden interesarte</h2>
+            <a routerLink="/products" class="section-link">Ver todo</a>
+          </div>
+          <div class="product-grid">
+            @for(product of products; track product.id) {
+              @if (product.id < 0) {
+                <div class="skeleton">
+                  <ngx-skeleton-loader
+                    appearance="line"
+                    [theme]="{
+                    height: '100%',
+                    width: '100%',
+                    'border-radius': '1.5rem',
+                    }"
+                  />
+                </div>
+              } @else {
+                  <app-product-card [isMostrarDescuento]="true" [product]="product"></app-product-card>
+              }
+            }
+          </div>
+        </section> 
+      }
 
-  @if (products.length) {
-    <section class="home-section product-showcase">
-      <div class="section-header">
-        <h2>Productos que pueden interesarte</h2>
-        <a routerLink="/products" class="section-link">Ver todo</a>
-      </div>
-      <div class="product-grid">
-        @for (item of products; track $index) {
-          <app-product-card [isMostrarDescuento]="true"  [product]="item"></app-product-card>
-        }
-      </div>
+  @if (!categories.length) {
+    <section class="home-section empty-state">
+      <h2>Construimos nuevas colecciones</h2>
+      <p>Muy pronto encontraras categorias disponibles para navegar.</p>
     </section>
   } @else {
-    <section class="home-section empty-state">
-      <h2>Estamos cargando los productos</h2>
-      <p>En instantes veras las mejores recomendaciones para ti.</p>
-    </section>
-  }
-
-  @if (categories.length) {
     <section class="home-section category-showcase" id="categorias">
       <div class="section-header">
         <h2>Categorias destacadas</h2>
@@ -45,14 +62,22 @@
       </div>
       <div class="category-grid">
         @for (item of categories; track $index) {
-          <app-category-card [category]="item"></app-category-card>
+          @if (item.id < 0) {
+            <div class="skeleton">
+              <ngx-skeleton-loader
+                appearance="line"
+                [theme]="{
+                  height: '100%',
+                  width: '100%',
+                  'border-radius': '1.5rem',
+                }"
+              />
+            </div>
+          } @else {
+            <app-category-card [category]="item"></app-category-card>
+          }
         }
       </div>
-    </section>
-  } @else {
-    <section class="home-section empty-state">
-      <h2>Construimos nuevas colecciones</h2>
-      <p>Muy pronto encontraras categorias disponibles para navegar.</p>
     </section>
   }
 </div>

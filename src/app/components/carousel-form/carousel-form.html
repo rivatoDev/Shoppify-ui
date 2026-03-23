@@ -33,7 +33,7 @@
                             </button>
 
                             @for (item of carouselItems; track item.id) {
-                                @if (isLoading) {
+                                @if (item.id < 0) {
                                     <div class="hero-skeleton">
                                         <ngx-skeleton-loader
                                             appearance="line"

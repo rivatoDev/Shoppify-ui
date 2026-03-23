@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, OnInit } from '@angular/core';
+import { Component, inject, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import { PromotionCarousel } from "../promotion-carousel/promotion-carousel";
@@ -8,7 +8,8 @@ import { Carouselitem } from '../../models/carouselitem';
 import { ImageFallbackDirective } from '../../core/directives/image-fallback';
 import { BackButtonComponent } from '../back-button/back-button';
 import { NgxSkeletonLoaderModule } from 'ngx-skeleton-loader';
-import { finalize } from 'rxjs';
+import { finalize, startWith } from 'rxjs';
+import { SkeletonFactoryService } from '../../services/skeleton-factory-service';
 
 
 
@@ -33,6 +34,8 @@ export class CarouselForm implements OnInit {
 
   fg!: FormGroup;
 
+  skeletonFactory = inject(SkeletonFactoryService);
+
 
   constructor(
     private carouselService: CarouselService,
@@ -47,17 +50,32 @@ export class CarouselForm implements OnInit {
     this.initForm()
   }
 
+  createSkeletonItems(count: number) {
+    return this.skeletonFactory.createSkeletonItems<Carouselitem>(count, (i) => ({
+      id: -i - 1,
+      url: '',
+      title: '',
+      href: ''
+    }));
+  }
+
   renderItems(){
     this.carouselService.getCarousel()
+    .pipe(
+      startWith(this.createSkeletonItems(8)),
+      finalize(() => this.isLoading = true)
+    )
     .subscribe({
       next:(data) => {
         this.carouselItems = data
         const id = this.route.snapshot.params['id']
-        this.isLoading = false
         if(id){
           this.selectedItem = data.find(a => a.id == id)
         }
       },
+      error: (error) => {
+        console.error(error);
+      }
     })
   }
 

@@ -4,6 +4,10 @@
   --grid-columns: 5;
 }
 
+.skeleton {
+  height: 10rem;
+}
+
 .home-wrapper {
   max-width: 1400px;
   margin: 0 auto;
