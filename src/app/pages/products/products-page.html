@@ -95,9 +95,22 @@
         }
 
         @if (adminView) {
-        <app-product-table [isEditMode]="editMode" [products]="refinedProducts" (deleteEvent)="onDelete()"
-          (editEvent)="editProduct($event)">
-        </app-product-table>
+          @if (isLoading) {
+            <div class="skeleton-table">
+              <ngx-skeleton-loader
+                appearance="line"
+                [theme]="{
+                  height: '100%',
+                  width: '100%',
+                  'border-radius': '1.5rem',
+                }"
+              />
+            </div>
+          } @else {
+            <app-product-table [isEditMode]="editMode" [products]="refinedProducts" (deleteEvent)="onDelete()"
+              (editEvent)="editProduct($event)">
+            </app-product-table>
+          }
         } @else {
         @for (p of refinedProducts; track p.id) {
           @if (p.id < 0) {

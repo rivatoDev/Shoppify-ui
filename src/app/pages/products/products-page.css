@@ -12,6 +12,11 @@
   width: 20rem;
 }
 
+.skeleton-table {
+  height: 20rem;
+  width: 90%;
+}
+
 .cardDetails {
   min-height: 24em;
 }

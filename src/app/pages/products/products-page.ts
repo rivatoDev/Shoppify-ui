@@ -141,8 +141,10 @@ export class ProductsPage {
   }
 
   renderRefinedProducts(filters: ProductParams): void {
+    this.isLoading = true
     this.productService.getList(filters)
     .pipe(
+      delay(3000),
       startWith({
               data: this.createProductsSkeletons(8),
               page: {
@@ -166,6 +168,7 @@ export class ProductsPage {
       error: (err) => {
         console.log("Ocurrio un error al filtrar los productos")
         this.refinedProducts = []
+        this.productsPage.totalElements = 0
       }
     });
   }

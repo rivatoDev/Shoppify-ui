@@ -13,10 +13,13 @@ import { AuthService } from '../../services/auth-service';
 import { CommonModule } from '@angular/common';
 import { CreateCategory } from '../../services/create-category';
 import { ScreenSizeService } from '../../services/screen-size-service';
+import { SkeletonFactoryService } from '../../services/skeleton-factory-service';
+import { delay, finalize, startWith } from 'rxjs';
+import { NgxSkeletonLoaderModule } from 'ngx-skeleton-loader';
 
 @Component({
   selector: 'app-categories-page',
-  imports: [CategoryCard, CategoryRefiner, CommonModule],
+  imports: [CategoryCard, CategoryRefiner, CommonModule, NgxSkeletonLoaderModule],
   templateUrl: './categories-page.html',
   styleUrl: './categories-page.css',
 })
@@ -26,15 +29,17 @@ export class CategoriesPage implements OnInit {
   currentFilters: CategoryParams = { page: 0, size: 8 }
   editMode = false;
 
+  isLoading: boolean = true
+
+
   constructor(
     public auth: AuthService,
     private categoryService: CategoryService,
     private swal: SwalService,
     private route: ActivatedRoute,
     private router: Router,
-    private dialog: MatDialog,
     private createCategoryService: CreateCategory,
-    private screenSizeService: ScreenSizeService
+    private skeleton: SkeletonFactoryService
   ) { }
 
   ngOnInit(): void {
@@ -43,6 +48,14 @@ export class CategoriesPage implements OnInit {
       this.currentFilters = filters;
       this.renderCategoriesWithFilters(filters);
     })
+  }
+
+  createCategoriesSkeletons(count: number) {
+    return this.skeleton.createSkeletonItems<Category>(count, (i) => ({
+      id: -i - 1,
+      name: "",
+      imgUrl: ""
+    }))
   }
 
   editToggle(): void {
@@ -58,12 +71,27 @@ export class CategoriesPage implements OnInit {
 
 
   renderCategoriesWithFilters(filters: CategoryParams): void {
-    this.categoryService.getList(filters).subscribe({
+    this.isLoading = true
+    this.categoryService.getList(filters)
+    .pipe(
+      startWith({
+              data: this.createCategoriesSkeletons(8),
+              page: {
+                number: 0,
+                size: 8,
+                totalElements: 0,
+                totalPages: 0
+              }
+            }),
+            finalize(() => this.isLoading = false)
+    )
+    .subscribe({
       next: (data) => {
         this.categories = data.data;
       },
       error: (err) => {
         console.error("Ocurrió un error al buscar/filtrar las categorías");
+        this.categories = []
       }
     });
   }
