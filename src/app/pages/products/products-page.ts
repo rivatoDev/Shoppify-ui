@@ -17,8 +17,10 @@ import { Page } from '../../models/hal/page';
 import { PaginationModule } from '@coreui/angular';
 import { CreateProduct } from '../../services/create-product';
 import { ScreenSizeService } from '../../services/screen-size-service';
-import { map } from 'rxjs/operators';
+import { delay, finalize, map, startWith } from 'rxjs/operators';
 import { combineLatest } from 'rxjs';
+import { NgxSkeletonLoaderComponent, NgxSkeletonLoaderModule } from 'ngx-skeleton-loader';
+import { SkeletonFactoryService } from '../../services/skeleton-factory-service';
 
 @Component({
   selector: 'app-products-page',
@@ -28,7 +30,8 @@ import { combineLatest } from 'rxjs';
     ProductsRefiner,
     ProductTable,
     CommonModule,
-    PaginationModule
+    PaginationModule,
+    NgxSkeletonLoaderModule
   ],
   templateUrl: './products-page.html',
   styleUrl: './products-page.css',
@@ -47,8 +50,10 @@ export class ProductsPage {
   editMode = false;
   adminView = false;
   filtersVisible = false;
+  isLoading: boolean = true
 
   screenSizeService = inject(ScreenSizeService);
+  skeleton = inject(SkeletonFactoryService);
 
   constructor(
     private productService: ProductService,
@@ -60,6 +65,25 @@ export class ProductsPage {
     private dialog: MatDialog,
     private createProductService: CreateProduct,
   ) { }
+
+  createProductsSkeletons(count: number) {
+    return this.skeleton.createSkeletonItems<Product>(count, (i) => ({
+      id: -i - 1,
+      name: "",
+      price: 0,
+      unitPrice: 0,
+      stock: 0,
+      sku: "",
+      discountPercentage : 0, 
+      barcode: "",
+      description: "",
+      brand: "",
+      imgURL: "",
+      soldQuantity: 0,
+      categories: [],
+      inactive: false
+    }))
+  }
 
   toggleFilters(): void {
     this.filtersVisible = !this.filtersVisible;
@@ -117,7 +141,20 @@ export class ProductsPage {
   }
 
   renderRefinedProducts(filters: ProductParams): void {
-    this.productService.getList(filters).subscribe({
+    this.productService.getList(filters)
+    .pipe(
+      startWith({
+              data: this.createProductsSkeletons(8),
+              page: {
+                number: 0,
+                size: 8,
+                totalElements: 8,
+                totalPages: 1
+              }
+            }),
+      finalize(() => this.isLoading = false)
+    )
+    .subscribe({
       next: (data) => {
         let items = data.data;
         if (!this.auth.permits().includes('ADMIN')) {
@@ -128,6 +165,7 @@ export class ProductsPage {
       },
       error: (err) => {
         console.log("Ocurrio un error al filtrar los productos")
+        this.refinedProducts = []
       }
     });
   }

@@ -2,6 +2,16 @@
   display: block;
 }
 
+.skeleton-header {
+  height: 7rem;
+  width: 100%;
+}
+
+.skeleton {
+  height: 25rem;
+  width: 20rem;
+}
+
 .cardDetails {
   min-height: 24em;
 }
