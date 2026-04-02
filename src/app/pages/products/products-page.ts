@@ -144,7 +144,6 @@ export class ProductsPage {
     this.isLoading = true
     this.productService.getList(filters)
     .pipe(
-      delay(3000),
       startWith({
               data: this.createProductsSkeletons(8),
               page: {
