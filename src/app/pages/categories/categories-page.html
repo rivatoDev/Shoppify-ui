@@ -9,7 +9,19 @@
     </aside>
 
     <div class="category-main">
-      <header class="category-toolbar">
+      @if (isLoading) {
+        <div class="skeleton-header">
+          <ngx-skeleton-loader
+            appearance="line"
+            [theme]="{
+              height: '100%',
+              width: '100%',
+              'border-radius': '1.5rem',
+            }"
+          />
+        </div>
+      } @else {
+        <header class="category-toolbar">
         <div class="toolbar-details">
           <h2>Resultados</h2>
           <p>{{ categories.length }} categorias encontradas</p>
@@ -30,6 +42,7 @@
           </div>
         }
       </header>
+      }
 
       @if (categories.length > 0) {
         <section class="category-grid" aria-label="Listado de productos">
@@ -49,7 +62,8 @@
           }
 
           @for (p of categories; track p.id) {
-            <article
+            @if (p.id > 0) {
+              <article
               class="category-card"
               [class.category-card--editing]="auth.permits().includes('ADMIN') && editMode">
               <app-category-card [category]="p"></app-category-card>
@@ -84,6 +98,18 @@
                 </div>
               }
             </article>
+            } @else {
+              <div class="skeleton">
+              <ngx-skeleton-loader
+                appearance="line"
+                [theme]="{
+                  height: '100%',
+                  width: '100%',
+                  'border-radius': '1.5rem',
+                }"
+              />
+            </div>
+            }
           }
         </section>
       } @else {

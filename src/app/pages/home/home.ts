@@ -121,7 +121,6 @@ export class Home implements OnInit {
   renderCategories(): void {
     this.categoryService.getList(this.categoryParams)
     .pipe(
-      delay(3000),
       startWith({
         data: this.createCategoriesSkeletons(5),
         page: {

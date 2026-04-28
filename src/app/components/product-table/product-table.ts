@@ -3,10 +3,11 @@ import { Product } from '../../models/product';
 import { ProductService } from '../../services/product-service';
 import { SwalService } from '../../services/swal-service';
 import { CommonModule } from '@angular/common';
+import { NgxSkeletonLoaderModule } from 'ngx-skeleton-loader';
 
 @Component({
   selector: 'app-product-table',
-  imports: [CommonModule],
+  imports: [CommonModule, NgxSkeletonLoaderModule],
   templateUrl: './product-table.html',
   styleUrl: './product-table.css'
 })

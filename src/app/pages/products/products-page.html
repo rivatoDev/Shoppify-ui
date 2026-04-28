@@ -24,7 +24,19 @@
     </aside>
 
     <div class="products-main">
-      <header class="products-toolbar">
+      @if (isLoading) {
+        <div class="skeleton-header">
+          <ngx-skeleton-loader
+            appearance="line"
+            [theme]="{
+              height: '100%',
+              width: '100%',
+              'border-radius': '1.5rem',
+            }"
+          />
+        </div>
+      } @else {
+        <header class="products-toolbar">
         <div class="toolbar-details">
           <h2>Resultados</h2>
           <p>{{totalResults}} productos encontrados</p>
@@ -50,9 +62,15 @@
         </div>
         }
       </header>
+      }
 
-      @if (refinedProducts.length > 0) {
-      <section class="products-grid" aria-label="Listado de productos">
+      @if (!refinedProducts.length) {
+        <div class="products-empty">
+          <h3>No se encontraron resultados</h3>
+          <p>Probá ajustando los filtros o restableciendo el catálogo completo.</p>
+        </div>
+      } @else {
+        <section class="products-grid" aria-label="Listado de productos">
         @if (auth.permits().includes('ADMIN') && editMode) {
         <article class="product-card product-card--create">
           <button type="button" class="create-product-button" (click)="createProduct()">
@@ -77,12 +95,37 @@
         }
 
         @if (adminView) {
-        <app-product-table [isEditMode]="editMode" [products]="refinedProducts" (deleteEvent)="onDelete()"
-          (editEvent)="editProduct($event)">
-        </app-product-table>
-        }@else {
+          @if (isLoading) {
+            <div class="skeleton-table">
+              <ngx-skeleton-loader
+                appearance="line"
+                [theme]="{
+                  height: '100%',
+                  width: '100%',
+                  'border-radius': '1.5rem',
+                }"
+              />
+            </div>
+          } @else {
+            <app-product-table [isEditMode]="editMode" [products]="refinedProducts" (deleteEvent)="onDelete()"
+              (editEvent)="editProduct($event)">
+            </app-product-table>
+          }
+        } @else {
         @for (p of refinedProducts; track p.id) {
-        <article class="product-card" [class.product-card--editing]="auth.permits().includes('ADMIN') && editMode"
+          @if (p.id < 0) {
+            <div class="skeleton">
+              <ngx-skeleton-loader
+                appearance="line"
+                [theme]="{
+                  height: '100%',
+                  width: '100%',
+                  'border-radius': '1.5rem',
+                }"
+              />
+            </div>
+          } @else {
+            <article class="product-card" [class.product-card--editing]="auth.permits().includes('ADMIN') && editMode"
           [class.product-card--admin]="auth.permits().includes('ADMIN') && adminView"
           [class.product-card--hidden]="p.inactive">
           @if (p.inactive) {
@@ -122,14 +165,11 @@
           </div>
           }
         </article>
+          }
+        
         }
         }
       </section>
-      } @else {
-      <div class="products-empty">
-        <h3>No se encontraron resultados</h3>
-        <p>Probá ajustando los filtros o restableciendo el catálogo completo.</p>
-      </div>
       }
       @if (productsPage && productsPage.totalPages > 1) {
       <div class="products-pagination">

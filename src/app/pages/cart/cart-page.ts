@@ -6,11 +6,13 @@ import { CartService } from '../../services/cart-service';
 import Swal from 'sweetalert2';
 import { AuthService } from '../../services/auth-service';
 import { Router } from '@angular/router';
-import { Observable } from 'rxjs';
+import { delay, finalize, Observable, startWith } from 'rxjs';
 import { CommonModule } from '@angular/common';
+import { NgxSkeletonLoaderModule } from 'ngx-skeleton-loader';
+import { SkeletonFactoryService } from '../../services/skeleton-factory-service';
 @Component({
   selector: 'app-cart-page',
-  imports: [ReactiveFormsModule, CommonModule],
+  imports: [ReactiveFormsModule, CommonModule, NgxSkeletonLoaderModule],
   templateUrl: './cart-page.html',
   styleUrl: './cart-page.css'
 })
@@ -21,20 +23,27 @@ export class CartPage implements OnInit {
   public cService = inject(CartService)
   public router = inject(Router)
   private tService = inject(TransactionService)
+  private skeleton = inject(SkeletonFactoryService)
 
   checkoutForm!: FormGroup
   permits = this.aService.permits()
   items: DetailCart[] = []
+  isLoading: boolean = true
   
 
   ngOnInit(): void {
 
-    this.cartItems().subscribe({
+    this.cartItems()
+    .pipe(
+      finalize(() => this.isLoading = false)
+    )
+    .subscribe({
       next: cart => {
         this.items = cart.items;
         this.cService.selected.set(new Set(this.items.map(item => item.id!)));
       },
       error: err => {
+        this.items = []
         console.error(err);
         Swal.fire({
           icon: "error",
@@ -43,6 +52,12 @@ export class CartPage implements OnInit {
         })
       }
     })
+  }
+
+  createDetailCartSkeletons(count: number) {
+    return this.skeleton.createSkeletonItems<DetailCart>(count, (i) => ({
+      id: -i - 1,
+    }))
   }
 
   cartItems(): Observable<Cart> {
